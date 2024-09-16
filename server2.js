@@ -12,23 +12,36 @@ app.get("/", (req, res) => {
       if (!data) {
         res.send("data not found!");
       }
-      return res.send(JSON.parse(data));
+      return res.status(200).json(JSON.parse(data));
     })
     .catch((error) => console.error(error));
 });
+// app.post("/books", (req, res) => {
+//   let books = [];
+//   let book = { id: uuidv4(), title: "48 laws of power" };
+//   fs.readFile("./data.json")
+//     .then((data) => {
+//       books = JSON.parse(data);
+//       books.push(book);
+//       return fs
+//         .writeFile("./data.json", JSON.stringify(books))
+//         .then((data) => res.status(200).json(book))
+//         .catch((error) => console.error(error));
+//     })
+//     .catch((error) => console.error(error));
+// });
 app.post("/books", (req, res) => {
+  const newBook = req.body;
   let books = [];
-  let book = { id: uuidv4(), title: "48 laws of power" };
   fs.readFile("./data.json")
     .then((data) => {
       books = JSON.parse(data);
-      books.push(book);
-      return fs
-        .writeFile("./data.json", JSON.stringify(books))
-        .then((data) => res.status(200).json(book))
+      books.push(newBook);
+      fs.writeFile("./data.json", JSON.stringify(books))
+        .then((data) => res.status(200).json(data))
         .catch((error) => console.error(error));
     })
-    .catch((error) => console.error(error));
+    .catch((error) => console.log(error));
 });
 app.put("/books/:id", (req, res) => {
   const id = req.params.id;
@@ -51,5 +64,19 @@ app.put("/books/:id", (req, res) => {
       )
       .catch((error) => console.error(error));
   });
+});
+app.delete("/books/:id", (req, res) => {
+  const id = req.params.id;
+  fs.readFile("./data.json")
+    .then((data) => {
+      const books = JSON.parse(data);
+      const newfiltered = books.filter((book) => book.id !== id);
+      const updatedBooks = newfiltered;
+      return fs
+        .writeFile("./data.json", JSON.stringify(updatedBooks, null, 2))
+        .then((data) => res.status(200).json(data))
+        .catch((error) => console.error(error));
+    })
+    .catch((error) => console.error(error));
 });
 app.listen(port, () => console.log(`app listenning at port ${port}`));
