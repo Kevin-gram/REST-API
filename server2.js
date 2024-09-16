@@ -12,6 +12,7 @@ app.get("/", (req, res) => {
       if (!data) {
         res.send("data not found!");
       }
+
       return res.status(200).json(JSON.parse(data));
     })
     .catch((error) => console.error(error));
