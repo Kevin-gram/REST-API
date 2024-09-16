@@ -55,7 +55,6 @@ app.patch("/books/:id", (req, res) => {
   console.log(id);
   fs.readFile("./data.json").then((data) => {
     let books = JSON.parse(data);
-    books.find((id) => id === id);
   });
 });
 
