@@ -18,6 +18,7 @@ const { v4: uuidv4 } = require("uuid");
 const express = require("express");
 
 const { json } = require("stream/consumers");
+const { error } = require("console");
 const fs = require("fs").promises;
 const app = express();
 app.use(express.json());
@@ -52,10 +53,45 @@ app.post("/books", (req, res) => {
 });
 app.patch("/books/:id", (req, res) => {
   const id = req.params.id;
+  const newBook = req.body;
   console.log(id);
-  fs.readFile("./data.json").then((data) => {
-    let books = JSON.parse(data);
-  });
+  fs.readFile("./data.json")
+    .then((data) => {
+      let books = JSON.parse(data);
+      const updatedBooks = books.map((book) => {
+        if (book.id === id) {
+          return { ...book, ...newBook };
+        }
+        return book;
+      });
+      return fs
+        .writeFile("./data.json", JSON.stringify(updatedBooks, null, 2))
+        .then((data) => {
+          res.status(200).json(JSON.parse(data));
+        })
+        .catch((error) => console.error(error));
+    })
+    .catch((error) => console.error(error));
+});
+app.put("/books/:id", (req, res) => {
+  const id = req.params.id;
+  const newBook = req.body;
+  fs.readFile("./data.json")
+    .then((data) => {
+      let allBooks = JSON.parse(data);
+      const updatedBooks = allBooks.map((book) => {
+        if (book.id === id) {
+          return { ...newBook };
+        }
+        return book;
+      });
+      return fs
+        .writeFile("./data.json", JSON.stringify(updatedBooks, null, 2))
+        .then((data) => res.status(200).json(JSON.parse(data)))
+
+        .catch((error) => console.error(error));
+    })
+    .catch((error) => console.error(error));
 });
 
 const port = 3000;
